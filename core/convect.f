@@ -1817,6 +1817,7 @@ c-----------------------------------------------------------------------
       subroutine conv_rhs_dg_weak (du,u,cr,cs,ct)
 c
 c     Implement  Cu = Div (cu) in weak form using DG
+      !Cu=\nabla\cdot(c u) 
 c
       include 'SIZE'
       include 'TOTAL'
@@ -1842,6 +1843,7 @@ c     Apply convecting field c(1,ldim) to scalar field u(1).
 
       call convop_weak (du,u,cr,cs,ct,lx1,lxd,nelv)  ! Volumetric term
 
+      !compute the velocity on face from the volume velocity
       call full2face(uf ,u )
       call full2face(uxf,vx)
       call full2face(uyf,vy)

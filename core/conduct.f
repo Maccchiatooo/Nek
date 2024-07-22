@@ -37,7 +37,9 @@ C
       !Geometry at t(n-1)
       if (igeom.eq.1) then   ! geometry at t^{n-1}
 
+         !compute bq
          call makeq
+         !keep passive
          call lagscal
 
       else                   ! geometry at t^n
@@ -62,14 +64,15 @@ c        if (ifaxis.and.ifmhd) isd = 2 !This is a problem if T is to be T!
          do 1000 iter=1,nmxnl ! iterate for nonlin. prob. (e.g. radiation b.c.)
 
          intype = 0
+         !iftran =1, solve transient solutions. not equilibrium
          if (iftran) intype = -1
          !set up h1 and h2 for \nabla^2{h1}=h2
          call sethlm  (h1,h2,intype)
          !set up Neumann boundary condition to ta to lhs contribution of A
          call bcneusc (ta,-1)
-         !add h2 and ta
+         !add h2 and ta. h2=h2+ta
          call add2    (h2,ta,n)
-         !add h2 and adq(1,1,1,1,:)
+         !add h2 and adq(1,1,1,1,:). h2=h2+adq
          call add2    (h2,adq(1,1,1,1,ifield-1),n)
          !set up Dirichlet boundary condition to t
          call bcdirsc (t(1,1,1,1,ifield-1))
@@ -82,7 +85,7 @@ c        if (ifaxis.and.ifmhd) isd = 2 !This is a problem if T is to be T!
          !tb=tb+ta
          call add2    (tb,ta,n)
 
-      !specify the field(s) defined on T mesh (first field is the ALE mesh)
+      !specify the field(s) defined on T mesh (first field is the ALE mesh) what is T mesh
          if(iftmsh(ifield)) then
            call hsolve  (name4t,TA,TB,H1,H2 
      $                   ,tmask(1,1,1,1,ifield-1)
@@ -238,6 +241,7 @@ C---------------------------------------------------------------
 
       call convop  (ta,t(1,1,1,1,ifield-1))
       do i=1,n
+      !bq=bq-bm1*ta*vtrans
         bq(i,1,1,1,ifield-1) = bq (i,1,1,1,ifield-1)
      $                       - bm1(i,1,1,1)*ta(i)*vtrans(i,1,1,1,ifield)
       enddo
@@ -263,6 +267,7 @@ C
          ta=ab1*vgradt1(i,1,1,1,ifield-1)+ab2*vgradt2(i,1,1,1,ifield-1)
          vgradt2(i,1,1,1,ifield-1)=vgradt1(i,1,1,1,ifield-1)
          vgradt1(i,1,1,1,ifield-1)=bq     (i,1,1,1,ifield-1)
+         !update bq
          bq     (i,1,1,1,ifield-1)=bq     (i,1,1,1,ifield-1)*ab0+ta
       enddo
 
@@ -303,7 +308,7 @@ C-----------------------------------------------------------------------
             enddo
          endif
       enddo
-
+      !bq=tb+h2*tb
       call addcol3 (bq(1,1,1,1,ifield-1),tb,h2,n)
 
       return

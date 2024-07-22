@@ -141,14 +141,16 @@ C
            call mxm   (wddx,lx1,u(1,1,1,e),lx1,tm1,nyz)
            !tm2=u(1,1,1,e)*wddyt
            call mxm   (u(1,1,1,e),lx1,wddyt,ly1,tm2,ly1)
-           !tm1=tm1*g4m1s
+           !tm1=tm1*g4m1s=wddx*u(1,1,1,e)*g4m1s
            call col2  (tm1,g4m1(1,1,1,e),nxyz)
-           !tm2=tm2*g5m1
+           !tm2=tm2*g5m1=u(1,1,1,e)*wddyt*g5m1
            call col2  (tm2,g5m1(1,1,1,e),nxyz)
-           !au(1,1,1,e)=tm1+tm2
+           !au(1,1,1,e)=tm1+tm2=wddx*u(1,1,1,e)*g4m1s+u(1,1,1,e)*wddyt*g5m1
            call add3  (au(1,1,1,e),tm1,tm2,nxyz)
-           !au(1,1,1,e)=au(1,1,1,e)*h1
+           !au(1,1,1,e)=au(1,1,1,e)*h1=h1*(wddx*u(1,1,1,e)*g4m1s+u(1,1,1,e)*wddyt*g5m1)
            call cmult (au(1,1,1,e),h1,nxyz)
+
+           !AU = helm1*[A]u
 C
            else
 C
@@ -229,6 +231,9 @@ C
  100  continue
 C
       if (ifh2) call addcol4 (au,helm2,bm1,u,ntot)
+      !au(1,1,1,e)=au(1,1,1,e)*h1=h1*(wddx*u(1,1,1,e)*g4m1s+u(1,1,1,e)*wddyt*g5m1)
+      !bm1 mass matrix
+      !au=au+helm2*bm1*u
 C
 C     If axisymmetric, add a diagonal term in the radial direction (ISD=2)
 C

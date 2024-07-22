@@ -122,6 +122,8 @@ C
 C
       CALL RZERO   (FMT,NTOT1)
       CALL DIVWS   (FMT,T(1,1,1,1,IFIELD-1),PHI,NEL,1)
+
+      !bq=bq+fmt*vtrans
       CALL ADDCOL3 (BQ(1,1,1,1,IFIELD-1),FMT,VTRANS(1,1,1,1,IFIELD),
      &              NTOT1)
 C

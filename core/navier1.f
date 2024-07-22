@@ -3181,9 +3181,11 @@ C
       ntotz = lx1*ly1*lz1*nelfld(ifield)
       ntott = lx1*ly1*lz1*nelt
  
+      !initialize conv=0
       call rzero  (conv,ntott)
  
       if (ifdgfld(ifield)) then
+      !
          call convect_dg (conv,fi,.false.,vxd,vyd,vzd,.true.)
          goto 100
       elseif (param(86).ne.0.0) then  ! skew-symmetric form
@@ -4367,6 +4369,7 @@ C
       END
 c-----------------------------------------------------------------------
       subroutine wlaplacian(out,a,diff,ifld)
+      !out = out-(diff*A*a+h2*B*a)
 c
 c     compute weak form of the laplacian operator including the boundary
 c     contribution
@@ -4389,7 +4392,11 @@ c
       ifield = ifld
 
       call bcneusc(out,1)
+      !axhelm (au,u,helm1,helm2,imesh,isd)
+      !AU = helm1*[A]u + helm2*[B]u
+      !wrk=diff*A*a+h2*B*a
       call axhelm(wrk,a,diff,h2,imesh,1)
+      !out=out-wrk=out-(diff*A*a+h2*B*a)
       call sub2 (out,wrk,ntot)  
  
       ifield = ifield_ 
